@@ -1,0 +1,54 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: protect-grp-projeto
+spec:
+  background: false
+  validationFailureAction: enforce
+  rules:
+    - name: block-namespace
+      match:
+        resources:
+          kinds:
+            - Namespace
+      preconditions:
+        all:
+          - key: "{{ request.userInfo.groups }}"
+            operator: In
+            value:
+              - "GRP_PROJETO"
+      validate:
+        deny: {}
+
+    - name: block-edit-quota
+      match:
+        resources:
+          kinds:
+            - ResourceQuota
+      preconditions:
+        all:
+          - key: "{{ request.userInfo.groups }}"
+            operator: In
+            value:
+              - "GRP_PROJETO"
+          - key: "{{ request.operation }}"
+            operator: Equals
+            value: UPDATE
+      validate:
+        deny: {}
+
+    - name: block-kyverno-resources
+      match:
+        resources:
+          kinds:
+            - ClusterPolicy
+            - CustomResourceDefinition
+      preconditions:
+        all:
+          - key: "{{ request.userInfo.groups }}"
+            operator: In
+            value:
+              - "GRP_PROJETO"
+      validate:
+        deny: {}
+

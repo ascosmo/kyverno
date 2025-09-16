@@ -1,0 +1,49 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-labels
+spec:
+  admission: true
+  background: true
+  emitWarning: false
+  validationFailureAction: Enforce
+  rules:
+  - match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    name: check-team
+    skipBackgroundRequests: true
+    validate:
+      allowExistingViolations: true
+      failureAction: Enforce
+      message: label 'team' is required
+      pattern:
+        metadata:
+          labels:
+            team: ?*
+  - name: "block namespace"
+    match:
+      any: 
+        - resources:
+            kinds: 
+            - Namespace
+    validate:
+      message: "não pode criar"
+      deny: {}
+  - name: "block edit quota"
+    match:
+      any:
+        - resources:
+            kinds:
+            - ResourceQuota
+    preconditions:
+      all:
+        - key: "{{ request.operation }}"
+          operator: Equals
+          value: UPDATE
+    validate:
+      deny: {}
+
+    

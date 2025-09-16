@@ -1,0 +1,66 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: protect-ns-quota
+spec:
+  admission: true
+  background: false
+  emitWarning: false
+  validationFailureAction: Enforce
+  rules:
+    # Bloqueia criação de Namespaces pelo GRP-USER
+    - name: block-namespace
+      match:
+        any:
+          - resources:
+              kinds:
+                - Namespace
+      preconditions:
+        all:
+          - key: "{{ request.userInfo.groups }}"
+            operator: NotIn
+            value:
+              - "GRP-USER"
+      validate:
+        deny: {}
+
+    # Bloqueia edição de ResourceQuota pelo GRP-USER
+    - name: block-edit-quota
+      match:
+        any:
+          - resources:
+              kinds:
+                - ResourceQuota
+      preconditions:
+        all:
+          - key: "{{ request.userInfo.groups }}"
+            operator: NotIn
+            value:
+              - "GRP-USER"
+          - key: "{{ request.operation }}"
+            operator: Equals
+            value: UPDATE
+      validate:
+        deny: {}
+
+    # Bloqueia edição do kyverno pelo GRP-USER
+    - name: block-kyverno-resources
+      match:
+        any:
+          - resources:
+              kinds:
+              - ClusterPolicy
+          - resources:
+              kinds:
+              - Namespace
+              name: kyverno
+      preconditions:
+        all:
+          - key: "{{ request.userInfo.groups }}"
+            operator: In
+            value:
+              - "GRP-USER"
+      validate:
+        deny: {}
+
+
