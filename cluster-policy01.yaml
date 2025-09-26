@@ -4,7 +4,7 @@ metadata:
   name: protect-grp-projeto
 spec:
   background: false
-  validationFailureAction: enforce
+  validationFailureAction: Enforce
   rules:
     - name: block-namespace
       match:
@@ -51,4 +51,3 @@ spec:
               - "GRP_PROJETO"
       validate:
         deny: {}
-

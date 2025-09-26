@@ -1,0 +1,18 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: protect-terraform
+spec:
+  background: false
+  validationFailureAction: Enforce
+  rules:
+    - name: block-namespace
+      match:
+        resources:
+          kinds:
+            - Namespace
+      validate:                      # <<-- operação obrigatória
+        message: "Criação de namespace não permitida"
+        pattern:
+          metadata:
+            name: "!*"
