@@ -20,19 +20,13 @@ provider "helm" {
   }
 }
 
-#cria namespace
-#resource "kubernetes_namespace" "name" {
-#  metadata {
-#    name = "kyverno"
-#  }
-#}
-
+#Install do kyverno com helm
 resource "helm_release" "kyverno" {
-  name       = "kyverno"
-  repository = "https://kyverno.github.io/kyverno/"
-  chart      = "kyverno"
-  version    = "3.5.2"
-  namespace  = "kyverno"
+  name             = "kyverno"
+  repository       = "https://kyverno.github.io/kyverno/"
+  chart            = "kyverno"
+  version          = "3.5.2"
+  namespace        = "kyverno"
   create_namespace = true
   wait             = true
   wait_for_jobs    = true
@@ -47,6 +41,6 @@ provider "kubernetes" {
 #Chamando yaml
 resource "kubectl_manifest" "policy01" {
   yaml_body = file("${path.module}/policy01.yaml")
-  depends_on = [ 
-    helm_release.kyverno ]
+  depends_on = [
+  helm_release.kyverno]
 }

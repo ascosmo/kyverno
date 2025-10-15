@@ -11,7 +11,7 @@ spec:
         resources:
           kinds:
             - Namespace
-      validate:                      # <<-- operação obrigatória
+      validate:
         message: "Criação de namespace não permitida"
         pattern:
           metadata:
