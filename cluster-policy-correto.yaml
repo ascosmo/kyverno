@@ -3,10 +3,8 @@ kind: ClusterPolicy
 metadata:
   name: protect-ns-quota
 spec:
-  admission: true
-  background: false
-  emitWarning: false
   validationFailureAction: Enforce
+  background: false
   rules:
     # Bloqueia criação de Namespaces pelo GRP-USER
     - name: block-namespace
@@ -18,10 +16,11 @@ spec:
       preconditions:
         all:
           - key: "{{ request.userInfo.groups }}"
-            operator: NotIn
+            operator: AnyIn
             value:
               - "GRP-USER"
       validate:
+        message: "Acesso negado: O grupo GRP-USER não tem permissão para criar Namespaces."
         deny: {}
 
     # Bloqueia edição de ResourceQuota pelo GRP-USER
@@ -34,13 +33,14 @@ spec:
       preconditions:
         all:
           - key: "{{ request.userInfo.groups }}"
-            operator: NotIn
+            operator: AnyIn
             value:
               - "GRP-USER"
           - key: "{{ request.operation }}"
             operator: Equals
             value: UPDATE
       validate:
+        message: "Acesso negado: O grupo GRP-USER não tem permissão para alterar ResourceQuotas."
         deny: {}
 
     # Bloqueia edição do kyverno pelo GRP-USER
@@ -57,10 +57,9 @@ spec:
       preconditions:
         all:
           - key: "{{ request.userInfo.groups }}"
-            operator: In
+            operator: AnyIn
             value:
               - "GRP-USER"
       validate:
+        message: "Acesso negado: O grupo GRP-USER não tem permissão para modificar recursos do Kyverno."
         deny: {}
-
-
