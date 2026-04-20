@@ -1,13 +1,33 @@
-Install Kyverno com TF
+# Repositório de Políticas Kyverno
 
-#helm install kyverno kyverno/kyverno -n kyverno --create-namespace
+Este repositório contém políticas do Kyverno para automação e governança de clusters Kubernetes.
 
+## Políticas Incluídas
 
-#reg.kyverno.io/kyverno/background-controller:v1.15.2
+- **protect-ns-quota**: Bloqueia a criação de Namespaces e a edição de ResourceQuotas para usuários do grupo `GRP-USER`. Também protege o namespace do Kyverno.
+- **protect-grp-projeto**: Restringe a criação de ClusterRoles e ClusterRoleBindings pelo grupo `GRP-USER`.
+- **protect-terraform**: Protege recursos gerenciados via Terraform (com label `app: terraform`) de modificações manuais.
 
-#reg.kyverno.io/kyverno/kyvernopre:v1.15.2  #<<<  Admission Controller
-#reg.kyverno.io/kyverno/kyverno:v1.15.2  #<<< Admission Controller, ver qual das duas é o init_container
+## Instalação do Kyverno
 
-#reg.kyverno.io/kyverno/cleanup-controller:v1.15.2
+Para instalar o controlador do Kyverno via Helm:
+```bash
+helm repo add kyverno https://kyverno.github.io/kyverno/
+helm install kyverno kyverno/kyverno -n kyverno --create-namespace
+```
 
-#reg.kyverno.io/kyverno/reports-controller:v1.15.2
+## Aplicação das Políticas
+
+Para aplicar as políticas deste repositório:
+```bash
+kubectl apply -f cluster-policy-correto.yaml
+kubectl apply -f cluster-policy01.yaml
+kubectl apply -f terra/policy01.yaml
+```
+
+---
+*Notas de Imagens (v1.15.2):*
+- Background Controller
+- Admission Controller (init: kyvernopre)
+- Cleanup Controller
+- Reports Controller
